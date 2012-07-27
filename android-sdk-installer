@@ -1,0 +1,986 @@
+#!/bin/bash -e
+#
+# android-sdk-installer - Linux utility which automatically installs and 
+# configures Android SDK, Eclipse ADT Plugin, adds hardware support for 
+# devices and adds full MTP support.
+#
+# Copyright © 2012 Adnan Hodzic <adnan@foolcontrol.org>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+ASI="Android SDK Installer"
+
+ASI_VERSION="0.1.1"
+
+DIV="\n----------------------------------------------------------------------------\n";
+
+# Check if user is root or not
+
+ROOT_UID=0
+if [ "$UID" -ne "$ROOT_UID" ]
+then
+	echo -e $DIV
+	echo -e "Please run $ASI as root.
+	\n(i.e: sudo android-sdk-installer)
+	\nInstallation aborted"
+	echo -e $DIV
+	exit 1
+else
+	echo -e $DIV
+	echo -e "Welcome to $ASI $ASI_VERSION
+	\nThe installer will guide you through the rest of the process."
+fi
+
+# Detect architecture, if x86_64 install its dependencies
+
+ARCH="$(uname -m)"
+	
+PACKAGE=ia32-libs
+
+# This whole step needs to be rewritten due to getting rid of ia32-libs by
+# moving to Multiarch
+# 
+# References:
+# http://wiki.debian.org/Multiarch
+
+if [ "$(dpkg-architecture -qDEB_BUILD_ARCH)" == "amd64" ]
+then
+	if dpkg -s "$PACKAGE" 2>/dev/null 1>/dev/null 
+	then 
+	
+	echo -e $DIV
+	echo -e "\n$ARCH architecture detected and its dependencies are satisfied\n"
+else
+	echo -e $DIV
+	
+	read -p "You're running $ARCH arhitecture, there are dependencies 
+($PACKAGE) which are not present on your system? 
+
+Install?
+[Y]es, [N]o, [S]kip: " response
+
+case $response in
+	
+[Yy]* ) 	
+	echo -e "\nOkay, will now install $PACKAGE\n"
+	apt-get install $PACKAGE
+	;;
+	
+	[Nn]* ) 
+	echo -e "\nPlease install $PACKAGE manually"
+	;;
+	
+	[Ss]* ) ;;
+	
+	* ) 
+	echo "Wrong value: installaton aborted." 
+	exit 1;;
+	
+esac
+fi
+fi
+
+# Check if OpenJDK Development Kit (JDK) dependency is satisfied
+
+PACKAGE=openjdk-6-jdk
+
+if dpkg -s "$PACKAGE" 2>/dev/null 1>/dev/null
+then 
+
+	echo -e $DIV
+  	echo -e "OpenJDK Development Kit is installed.\nMoving on ..."
+  	
+else
+
+echo -e $DIV
+read -p "OpenJDK Development Kit ($PACKAGE) is NOT installed.
+
+Would you like to install it?
+[Y]es, [N]o, [S]kip :" response
+	
+	case $response in
+	
+	[Yy]* ) 
+		apt-get install openjdk-6-jdk
+	;;
+	
+	[Nn]* ) 
+	echo -e "\nAndroid SDK can't run without $PACKAGE"
+	exit 1
+	;;
+	
+	[Ss]* ) ;;
+	
+	* ) 
+	echo "Wrong value: installaton aborted." 
+	exit 1
+	;;
+	
+	esac
+fi
+
+# Pre-cleaning process
+
+SDK_R="android-sdk_r20.0.1-linux.tgz"
+SDK_15="android-15_r03.zip"
+SDK_21="android-2.1_r03-linux.zip"
+
+ADT_RM="ADT-20.0.1.zip"
+ADT_RM_URL=http://dl.google.com/android/ADT-20.0.1.zip
+
+if [ -f $SDK_R ]
+then
+
+echo -e $DIV
+
+read -p "Installer found \"$SDK_R\" file which might defect rest of 
+the installation process, remove? 
+
+[Y]es, [N]o, [S]kip :" response
+
+case $response in
+
+	[Yy]* ) 	
+	rm -f $SDK_R 2>/dev/null
+	;;
+
+	[Nn]* ) 
+	chmod 666 $SDK_R
+	;;
+	
+	[Ss]* )
+	chmod 666 $SDK_R
+	;;
+	
+	* ) 
+	echo "Wrong value: installaton aborted."
+	exit 1
+	;;
+
+esac
+fi
+
+if [ -f $SDK_15 ]
+then
+	
+echo -e $DIV
+
+read -p "Installer found \"$SDK_15\" file which might defect rest of 
+the installation process, remove? 
+
+[Y]es, [N]o, [S]kip :" response
+
+case $response in
+
+	[Yy]* ) 	
+	rm -f $SDK_15 2>/dev/null
+	;;
+
+	[Nn]* ) 
+	chmod 666 $SDK_15
+	;;
+	
+	[Ss]* )
+	chmod 666 $SDK_15
+	;;
+	
+	* ) 
+	echo "Wrong value: installaton aborted."
+	exit 1
+	;;
+
+esac
+fi
+
+if [ -f $SDK_21 ]
+then
+
+echo -e $DIV
+	
+read -p "Installer found \"$SDK_21\" file which might defect rest of
+the installation process, remove? 
+
+[Y]es, [N]o, [S]kip :" response
+
+case $response in
+
+	[Yy]* ) 	
+	rm -f $SDK_21 2>/dev/null
+	;;
+
+	[Nn]* ) 
+	chmod 666 $SDK_21
+	;;
+	
+	[Ss]* )
+	chmod 666 $SDK_21
+	;;
+	
+	* ) 
+	echo "Wrong value: installaton aborted."
+	exit 1
+	;;
+
+esac
+fi
+
+if [ -f $ADT_RM ]
+then
+	
+echo -e $DIV
+
+read -p "Installer found \"$ADT_RM\" file which might defect rest of 
+the installation process, remove? 
+
+[Y]es, [N]o, [S]kip :" response
+
+case $response in
+
+	[Yy]* ) 	
+	rm -f $ADT_RM 2>/dev/null
+	;;
+
+	[Nn]* ) 
+	chmod 666 $ADT_RM
+	;;
+	
+	[Ss]* )
+	chmod 666 $ADT_RM
+	;;
+	
+	* ) 
+	echo "Wrong value: installaton aborted."
+	exit 1
+	;;
+
+esac
+fi
+
+# Is there a /opt/android-sdk-linux directory?
+
+DIRECTORY=/opt/android-sdk-linux
+
+if [ -d "$DIRECTORY" ]
+then
+
+echo -e $DIV
+	
+read -p "Directory \"$DIRECTORY\" already exists. 
+	
+Installer will ovewrite this directory with new installation data, 
+backup will be stored in \"$DIRECTORY.sdk.bak\"
+
+Continue?
+[Y]es, [N]o, [S]kip :" response
+	
+case $response in
+
+[Yy]* ) 
+	# backup and/or remove existing /opt/android-sdk-linux directory
+	cp -R $DIRECTORY $DIRECTORY.sdk.bak
+	rm -Rf $DIRECTORY 2>/dev/null
+	;;
+		
+[Nn]* ) 
+	echo -e "\nCan't continue without access to \"$DIRECTORY\" directory" 
+	exit 1
+	;;
+
+[Ss]* ) ;;
+
+* ) 
+	echo "Wrong value: installaton aborted."
+	exit 1
+	;;
+esac
+
+else
+	mkdir $DIRECTORY
+	chmod 755 -R $DIRECTORY
+fi
+
+echo -e $DIV
+
+# Check if SDK/Tools directory is empty 
+#
+# In future find the constant URL to the latest API revision
+# Attempt to get one from Google:
+# https://groups.google.com/forum/?fromgroups#!starred/android-developers/CywPfuWBKJ0
+
+TOOL="/opt/android-sdk-linux/tools"
+
+STARTER="Android SDK Starter Package"
+LATEST_STARTER_URL=http://dl.google.com/android/android-sdk_r20.0.1-linux.tgz
+LATEST_STARTER_PAK=$SDK_R
+
+if [ -z "ls $TOOL" ]
+	then
+	echo -e "\n\nAndroid SDK Tools seem to be present, moving forward\n"
+else
+
+read -p "Install $STARTER?
+
+Provides tools such as \"android\" (Android SDK and AVD Manager),
+\"emulator\" (Android Emulator), \"ddms\" (Dalvik Debug Monitor), et cetera ...
+
+[Y]es, [N]o, [S]kip: " response
+
+case $response in
+
+[Yy]* )
+	echo -e "\nWill now download the $STARTER\n"
+	wget $LATEST_STARTER_URL
+	tar -xzvf $LATEST_STARTER_PAK -C /opt/
+    echo -e "\n$STARTER successfully installed"
+;;
+
+[Nn]* ) 
+	echo -e "\nInstallation aborted:
+	\nCan't continue without Android Tools!\n"
+	exit 1
+;;
+		
+[Ss]* ) 
+	echo -e "\nReluctantly skipping over this step"
+;;
+
+* ) echo "Wrong value: installaton aborted." 
+	exit 1
+;;
+
+esac
+fi
+
+echo -e $DIV
+
+# Install latest Android API?
+
+LATEST_REV="4.1, API 16, revision 1 (Jelly Bean)"
+LATEST_REV_URL=http://dl.google.com/android/repository/android-16_r01.zip
+LATEST_REV_PAK=android-16_r01.zip
+
+read -p "Install latest Android $LATEST_REV? 
+(supports all the latest features)
+
+[Y]es, [N]o, [S]kip  : " response
+		 
+case $response in
+
+[Yy]* )    
+	# Download latest Android SDK
+	echo -e "\nWill now download $LATEST_REV\n"
+	wget $LATEST_REV_URL
+	unzip $LATEST_REV_PAK -d /opt/android-sdk-linux/platforms
+	echo -e "\nSuccessfully installed Android API $LATEST_REV"
+;;
+    
+[Nn]* ) 
+	echo -e "Android $LATEST_REV did NOT install\n"
+;;
+
+[Ss]* ) ;;
+
+* ) echo "Wrong value: installaton aborted."
+	exit 1
+;;
+
+esac
+
+echo -e $DIV
+
+CLASSIC_REV="2.1, revision 03"
+CLASSIC_REV_URL=http://dl.google.com/android/repository/android-2.1_r03-linux.zip
+
+read -p "Install Android API $CLASSIC_REV? (supported by ~97% phones and tablets)
+
+[Y]es, [N]o, [S]kip: " response
+		 
+case $response in
+
+[Yy]* )
+	# Download Android 2.1 SDK
+	echo -e "\nWill now download $CLASSIC_REV\n"
+	wget $CLASSIC_REV_URL
+	# check if there's no "android-sdk-linux/platforms" do you have to make one?
+	unzip $SDK_21 -d /opt/android-sdk-linux/platforms
+	echo -e "\nSuccessfully installed Android API $CLASSIC_VERSION"
+;;
+	
+[Nn]* ) 
+	echo -e "Android $CLASSIC_REV did NOT install\n"
+;;
+
+[Ss]* ) ;;
+
+* ) echo "Wrong value: installaton aborted."
+	exit 1
+;;
+	
+esac
+
+echo -e $DIV
+
+# Configure PATH environmental variable
+
+PATHV=/etc/profile.d/android-sdk.sh
+
+read -p "Configure PATH environmental variable? 
+
+Will allow you to run tools such as \"android\" (Android SDK and AVD Manager),
+\"emulator\" (Android Emulator), \"ddms\" (Dalvik Debug Monitor) directly from
+Terminal.
+
+[Y]es, [N]o, [S]kip: " response
+
+case $response in
+
+[Yy]* )
+	if [ -f $PATHV ]
+	then
+	
+	echo -e $DIV
+	read -p "
+An existing \"$PATHV\" file has been detected in \"/etc/profile.d/\"
+	
+Installer will overwrite this file, backup will be made and stored in 
+\"$PATHV.sdk.bak\"
+
+Continue?
+
+[Y]es, [N]o, [S]kip :" response
+
+case $response in
+
+[Yy]* ) 	
+	# Backup and remove current android-sdk.sh file
+	cp -f $PATHV $PATHV.sdk.bak
+	rm -f $PATHV 2>/dev/null
+;;
+
+[Nn]* ) 
+	echo -e "\PATH environmental variable was NOT configured, Goodbye"
+	exit 1
+;;
+
+[Ss]* ) ;;
+
+* ) 
+	echo "Wrong value: installaton aborted."
+	exit 1
+;;
+
+esac
+
+else
+
+touch $PATHV
+chmod 644 $PATHV
+
+fi
+
+# Create android-sdk.sh file
+	
+echo -n '#!/bin/bash -e
+# PATH for Android SDK
+PATH="/opt/android-sdk-linux/tools:/opt/android-sdk-linux/platforms:$PATH"' > $PATHV
+
+	# apply PATH without user having to log out
+	export PATH="/opt/android-sdk-linux/tools:/opt/android-sdk-linux/platforms:$PATH"
+	
+	# make sure permissions are alright
+	chmod -R 755 $DIRECTORY
+
+	# in future add "sed" here in order to avoid repetitive code
+
+	echo -e "\nPATH successfully added and configured."
+;;
+
+[Nn]* ) 
+	echo -e "\nWon't continue without configuring PATH environmental variable" 
+	exit 1
+;;
+
+[Ss]* ) ;;
+
+* ) 
+	echo "Wrong value: installaton aborted." 
+	exit 1
+;;
+
+esac
+
+echo -e $DIV
+
+# Eclipse and Android ADT plugin installation
+#
+# This part is completely broken, procedure that is done below worked on 
+# Eclipse <=3.3
+# On latest Eclipse version Plugin needs to be made as seperate component
+# 
+# Reference:
+# http://help.eclipse.org/indigo/index.jsp?topic=/org.eclipse.platform.doc.isv/guide/p2_director.html
+
+read -p "Install ADT (Android Development Tools) Plugin for Eclipse IDE?
+
+[Y]es, [N]o, [S]kip: " response
+
+case $response in
+
+[Yy]* ) 	
+	PACKAGE=Eclipse
+
+	if dpkg -s "$PACKAGE" 2>/dev/null 1>/dev/null
+	then 
+  	echo -e "\n$PACKAGE is installed.\nWill now download Eclipse ADT Plugin\n"
+
+	wget $ADT_RM_URL
+	unzip $ADT_RM -d /tmp/
+	
+	cp /tmp/features/*.jar /usr/share/eclipse/features/
+	cp /tmp/plugins/*.jar /usr/share/eclipse/plugins/
+	# see what to do with rest of the files web/ index.html & site.xml
+	
+	else 
+	
+	read -p "
+$PACKAGE IDE is NOT installed, would you like to install it?
+[Y]es, [N]o, [S]kip :" response
+	
+	case $response in
+	
+	[Yy]* ) 
+		apt-get install eclipse
+		
+		echo -e "\nOkay, will now download Eclipse ADT Plugin\n"
+
+		wget $ADT_RM_URL
+		unzip $ADT_RM -d /tmp/
+	
+		cp /tmp/features/*.jar /usr/share/eclipse/features/
+		cp /tmp/plugins/*.jar /usr/share/eclipse/plugins/
+		# see what to do with rest of the files web/ index.html & site.xml
+	;;
+	
+	[Nn]* ) 
+	echo -e "\nADT Plugin can't be installed without $PACKAGE IDE"
+	exit 1
+	;;
+	
+	[Ss]* ) ;;
+	
+	* ) 
+	echo "Wrong value: installaton aborted." 
+	exit 1
+	;;
+	
+	esac
+	fi
+esac
+	
+echo -e $DIV
+	
+# Adds Hardware Device support by adding udev rules
+
+RULES=/etc/udev/rules.d/51-android.rules
+
+read -p "Add hardware support for you Android devices?
+
+[Y]es, [N]o, [S]kip :" response
+
+case $response in 
+
+	[Yy]* )
+	echo "Adding hardware support"
+	;;
+	
+	[Nn]* )
+	echo "Hardware support was NOT added"
+	;;
+	
+	[Ss]* ) ;;
+	
+	* ) 
+	echo "Wrong value: installaton aborted."
+	exit 1
+	;;
+	
+esac
+
+# Check if the "rules" file already exists
+if [ -f $RULES ];
+then
+
+echo -e $DIV
+read -p "An existing \"51-android.rules\" file has been detected in \"/etc/udev/rules.d/\"
+	
+Installer will overwrite this file, backup will be made and stored in 
+\"$RULES.sdk.bak\"
+
+Continue?
+
+[Y]es, [N]o, [S]kip :" response
+
+case $response in
+
+	[Yy]* ) 	
+	# backup and remove current 51-android.rules file
+	cp -f $RULES $RULES.sdk.bak
+	rm -f $RULES 2>/dev/null
+	;;
+
+	[Nn]* ) echo -e "\nInstaller did NOT add hardware support, Goodbye"
+	exit 1
+	;;
+
+	[Ss]* ) ;;
+
+	* ) echo "Wrong value: installaton aborted."
+	exit 1
+	;;
+	
+esac
+
+else
+
+# create rules files and give it proper permissions
+touch $RULES
+chmod 644 $RULES
+
+fi
+
+# add new 51-android.rules file
+
+# Consider removing "OWNER="plugdev" due to the fact that during the boot
+# system (Debian Sid) reports it's an unknown user
+
+echo -n '# udev rules which add hardware device support on Linux
+#
+# "Using Hardware devices"
+# (http://developer.android.com/guide/developing/device.html)
+#
+# List last updated: May 9, 2012
+
+# Acer
+SUBSYSTEM=="usb", ATTR{idVendor}=="0502", MODE="0666", OWNER="plugdev"
+
+# ASUS
+SUBSYSTEM=="usb", ATTR{idVendor}=="0b05", MODE="0666", OWNER="plugdev"
+
+# Dell
+SUBSYSTEM=="usb", ATTR{idVendor}=="413c", MODE="0666", OWNER="plugdev"
+
+# Foxconn
+SUBSYSTEM=="usb", ATTR{idVendor}=="0489", MODE="0666", OWNER="plugdev"
+
+# Fujitsu
+SUBSYSTEM=="usb", ATTR{idVendor}=="04c5", MODE="0666", OWNER="plugdev"
+
+# Fujitsu Toshiba
+SUBSYSTEM=="usb", ATTR{idVendor}=="04c5", MODE="0666", OWNER="plugdev"
+
+# Garmin-Asus
+SUBSYSTEM=="usb", ATTR{idVendor}=="091e", MODE="0666", OWNER="plugdev"
+
+# Google
+SUBSYSTEM=="usb", ATTR{idVendor}=="18d1", MODE="0666", OWNER="plugdev"
+
+# Hisense
+SUBSYSTEM=="usb", ATTR{idVendor}=="109b", MODE="0666", OWNER="plugdev"
+
+# HTC
+SUBSYSTEM=="usb", ATTR{idVendor}=="0bb4", MODE="0666", OWNER="plugdev"
+
+# Huawei
+SUBSYSTEM=="usb", ATTR{idVendor}=="12d1", MODE="0666", OWNER="plugdev"
+
+# K-Touch
+SUBSYSTEM=="usb", ATTR{idVendor}=="24e3", MODE="0666", OWNER="plugdev"
+
+# KT Tech
+SUBSYSTEM=="usb", ATTR{idVendor}=="2116", MODE="0666", OWNER="plugdev"
+
+# Kyocera
+SUBSYSTEM=="usb", ATTR{idVendor}=="0482", MODE="0666", OWNER="plugdev"
+
+# Lenovo
+SUBSYSTEM=="usb", ATTR{idVendor}=="17ef", MODE="0666", OWNER="plugdev"
+
+# LG
+SUBSYSTEM=="usb", ATTR{idVendor}=="1004", MODE="0666", OWNER="plugdev"
+
+# Motorola
+SUBSYSTEM=="usb", ATTR{idVendor}=="22b8", MODE="0666", OWNER="plugdev"
+
+# NEC
+SUBSYSTEM=="usb", ATTR{idVendor}=="0409", MODE="0666", OWNER="plugdev"
+
+# Nook
+SUBSYSTEM=="usb", ATTR{idVendor}=="2080", MODE="0666", OWNER="plugdev"
+
+# Nvidia
+SUBSYSTEM=="usb", ATTR{idVendor}=="0955", MODE="0666", OWNER="plugdev"
+
+# OTGV
+SUBSYSTEM=="usb", ATTR{idVendor}=="2257", MODE="0666", OWNER="plugdev"
+
+# Pantech
+SUBSYSTEM=="usb", ATTR{idVendor}=="10a9", MODE="0666", OWNER="plugdev"
+
+# Pegatron
+SUBSYSTEM=="usb", ATTR{idVendor}=="1d4d", MODE="0666", OWNER="plugdev"
+
+# Philips
+SUBSYSTEM=="usb", ATTR{idVendor}=="0471", MODE="0666", OWNER="plugdev"
+
+# PMC-Sierra
+SUBSYSTEM=="usb", ATTR{idVendor}=="04da", MODE="0666", OWNER="plugdev"
+
+# Qualcomm
+SUBSYSTEM=="usb", ATTR{idVendor}=="05c6", MODE="0666", OWNER="plugdev"
+
+# SK Telesys
+SUBSYSTEM=="usb", ATTR{idVendor}=="1f53", MODE="0666", OWNER="plugdev"
+
+# Samsung
+SUBSYSTEM=="usb", ATTR{idVendor}=="04e8", MODE="0666", OWNER="plugdev"
+
+# Sharp
+SUBSYSTEM=="usb", ATTR{idVendor}=="04dd", MODE="0666", OWNER="plugdev"
+
+# Sony
+SUBSYSTEM=="usb", ATTR{idVendor}=="054c", MODE="0666", OWNER="plugdev"
+
+# Sony Ericsson
+SUBSYSTEM=="usb", ATTR{idVendor}=="0fce", MODE="0666", OWNER="plugdev"
+
+# Teleepoch
+SUBSYSTEM=="usb", ATTR{idVendor}=="2340", MODE="0666", OWNER="plugdev"
+
+# Toshiba
+SUBSYSTEM=="usb", ATTR{idVendor}=="0930", MODE="0666", OWNER="plugdev"
+
+# ZTE
+SUBSYSTEM=="usb", ATTR{idVendor}=="19d2", MODE="0666", OWNER="plugdev"
+' > $RULES
+
+# in future add "sed" in order to avoid repetitive code
+
+# provide all groups, users and others with read permissions for this file
+chmod a+r $RULES
+
+echo -e "\nHardware device support successfully installed"
+
+echo -e $DIV
+
+# add MTP support
+
+read -p "Add MTP support? (enables USB mass storage support on Android >= 4.0)
+
+[Y]es, [N]o, [S]kip: " response
+
+case $response in
+
+[Yy]* ) 
+	PACKAGE=mtpfs
+	
+	if [ dpkg -s "$PACKAGE" 2>/dev/null 1>/dev/null ]
+		then 
+		echo -e "\nIt seems you have all the needed packages installed" 	
+	else 
+	
+	read -p "
+Packages seem to be missing, install required packages?
+[Y]es, [N]o :" response
+
+	case $response in
+
+		[Yy]* ) 
+		apt-get install mtp-tools mtpfs
+		;;
+		
+		[Nn]* ) 
+		echo "Did not install MTP support"
+		# exit 1
+		;;
+		
+		* ) 
+		echo "Wrong value: installaton aborted."
+		exit 1
+		;;
+		
+	esac
+	
+	echo -e "\nMTP support successfully installed"
+
+	# In future extend this part by adding device name to /media dir
+	# fix permissions and add user to fuse group; edit fuse.conf and .bashrc
+	#
+	# Reference:
+	# http://www.omgubuntu.co.uk/2011/12/how-to-connect-your-android-ice-cream-sandwich-phone-to-ubuntu-for-file-access
+	
+	fi  
+;;
+
+[Nn]* ) 
+	echo "Did NOT enable MTP support"
+	exit 1
+	;;
+	
+[Ss]* ) ;;
+
+* ) 
+	echo "Wrong value: installation aborted." 
+	exit 1
+	;;
+
+esac
+
+# clean up
+
+SDK_R="android-sdk_r20.0.1-linux.tgz"
+SDK_15="android-15_r03.zip"
+SDK_21="android-2.1_r03-linux.zip"
+ADT_RM="ADT-20.0.1.zip"
+
+if [ -f $SDK_R ]
+then
+
+echo -e $DIV
+
+read -p "Installer left \"$SDK_R\" file, would you like to remove it?
+
+[Y]es, [N]o, [S]kip :" response
+
+case $response in
+
+	[Yy]* ) 	
+	rm -f $SDK_R 2>/dev/null
+	;;
+
+	[Nn]* ) 
+	chmod 666 $SDK_R
+	;;
+
+	[Ss]* )
+	chmod 666 $SDK_R
+	;;
+
+	* ) 
+	echo "Wrong value: installaton aborted." 
+	exit 1
+	;;
+
+esac
+fi
+
+if [ -f $SDK_15 ]
+then
+	
+echo -e $DIV
+
+read -p "Installer found \"$SDK_15\" file which might defect rest of 
+the installation process, remove? 
+
+[Y]es, [N]o, [S]kip :" response
+
+case $response in
+
+	[Yy]* ) 	
+	rm -f $SDK_15 2>/dev/null
+	;;
+
+	[Nn]* ) 
+	chmod 666 $SDK_15
+	;;
+	
+	[Ss]* )
+	chmod 666 $SDK_15
+	;;
+	
+	* ) 
+	echo "Wrong value: installaton aborted."
+	exit 1
+	;;
+
+esac
+fi
+
+if [ -f $SDK_21 ]
+then
+
+echo -e $DIV
+	
+read -p "Installer left \"$SDK_21\" file, would you like to remove it?
+
+[Y]es, [N]o, [S]kip :" response
+
+case $response in
+
+	[Yy]* ) 	
+	rm -f $SDK_21 2>/dev/null
+	;;
+
+	[Nn]* ) 
+	chmod 666 $SDK_21
+	;;
+
+	[Ss]* )
+	chmod 666 $SDK_21
+	;;
+
+	* ) 
+	echo "Wrong value: installaton aborted." 
+	exit 1
+	;;
+
+esac
+fi
+
+if [ -f $ADT_RM ]
+then
+	
+echo -e $DIV
+
+read -p "Installer left \"$ADT_RM\" file, would you like to remove it?
+
+[Y]es, [N]o, [S]kip :" response
+
+case $response in
+
+	[Yy]* ) 	
+	rm -f $ADT_RM 2>/dev/null
+	;;
+
+	[Nn]* ) 
+	chmod 666 $ADT_RM
+	;;
+
+	[Ss]* )
+	chmod 666 $ADT_RM
+	;;
+
+	* ) 
+	echo "Wrong value: installaton aborted."
+	exit 1
+	;;
+
+esac
+fi
+
+echo -e $DIV
+
+echo -e "Installation complete. Feel free to run \"android-sdk-installer\" at any
+time to (re)configure.\n\nEnjoy!\n";
+
+exit 0
