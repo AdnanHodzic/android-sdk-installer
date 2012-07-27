@@ -1,0 +1,10 @@
+android-sdk-installer
+=====================
+
+Linux utility which aims to automatically install and configures Android SDK, Eclipse ADT Plugin, adds hardware support for devices and enables full MTP support.
+
+Scope and goal of this project is explained in paper: "Implementation of Android SDK into Debian Linux"
+
+http://foolcontrol.org/cloud/public.php?service=files&token=8966c6a58763835559f7a0e400c1324e21e74842&file=/Documents/cita%20481%20-%20capstone/Implementation%20of%20Android%20SDK%20into%20Debian%20Linux.pdf
+
+
