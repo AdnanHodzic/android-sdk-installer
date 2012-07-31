@@ -981,6 +981,6 @@ fi
 echo -e $DIV
 
 echo -e "Installation complete. Feel free to run \"android-sdk-installer\" at any
-time to (re)configure.\n\nEnjoy!\n";
+time to (re)configure.\nIf you want to configure this installation, run \"android\" in root.\nEnjoy!\n";
 
 exit 0
