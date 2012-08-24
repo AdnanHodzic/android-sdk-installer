@@ -21,7 +21,7 @@
 
 ASI="Android SDK Installer"
 
-ASI_VERSION="0.1.1"
+ASI_VERSION="0.1.2"
 
 DIV="\n----------------------------------------------------------------------------\n";
 
@@ -93,7 +93,7 @@ fi
 
 # Check if OpenJDK Development Kit (JDK) dependency is satisfied
 
-PACKAGE=openjdk-6-jdk
+PACKAGE=openjdk-7-jdk
 
 if dpkg -s "$PACKAGE" 2>/dev/null 1>/dev/null
 then 
@@ -112,7 +112,7 @@ Would you like to install it?
 	case $response in
 	
 	[Yy]* ) 
-		apt-get install openjdk-6-jdk
+		apt-get install $PACKAGE
 	;;
 	
 	[Nn]* ) 
