@@ -50,7 +50,7 @@ sudo dpkg --configure -a
 
 ARCH="$(uname -m)"
 	
-PACKAGE=lib32ncurses5 lib32stdc++6
+PACKAGE="lib32ncurses5 lib32stdc++6"
 
 # This whole step needs to be rewritten due to getting rid of ia32-libs by
 # moving to Multiarch
@@ -58,9 +58,16 @@ PACKAGE=lib32ncurses5 lib32stdc++6
 # References:
 # http://wiki.debian.org/Multiarch
 
-if [ "$(dpkg-architecture -qDEB_BUILD_ARCH)" == "amd64" ]
+if dpkg -s "lib32ncurses5" 2>/dev/null 1>/dev/null
+then 
+if dpkg -s "lib32stdc++6" 2>/dev/null 1>/dev/null
 then
-read -p "Dependencies ["+$PACKAGE+"] are required.
+
+	echo -e $DIV
+  	echo -e "Dependencies $PACKAGE are already installed.\nMoving on ..."
+  	
+else
+read -p "Dependencies $PACKAGE are required.
 
 Install?
 [Y]es, [N]o, [S]kip: " response
