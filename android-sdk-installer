@@ -491,14 +491,11 @@ sudo chmod 644 $PATHV
 
 fi
 
-# Create android-sdk.sh file
-	
-echo -n '#!/bin/bash -e
-# PATH for Android SDK
-PATH="/opt/android-sdk-linux/tools:/opt/android-sdk-linux/platforms:$PATH"' > $PATHV
+# Create some directories
+sudo mkdir "/opt/android-sdk-linux/platform-tools"
 
 	# apply PATH without user having to log out
-	export PATH="/opt/android-sdk-linux/tools:/opt/android-sdk-linux/platforms:$PATH"
+	export PATH="/opt/android-sdk-linux/tools:/opt/android-sdk-linux/platforms:/opt/android-sdk-linux/platform-tools:$PATH"
 	
 	# make sure permissions are alright
 	sudo chmod -R 755 $DIRECTORY
