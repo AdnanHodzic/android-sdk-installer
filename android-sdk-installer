@@ -50,7 +50,7 @@ sudo dpkg --configure -a
 
 ARCH="$(uname -m)"
 	
-PACKAGE=ia32-libs
+PACKAGE=lib32ncurses5 lib32stdc++6
 
 # This whole step needs to be rewritten due to getting rid of ia32-libs by
 # moving to Multiarch
@@ -60,16 +60,7 @@ PACKAGE=ia32-libs
 
 if [ "$(dpkg-architecture -qDEB_BUILD_ARCH)" == "amd64" ]
 then
-	if dpkg -s "$PACKAGE" 2>/dev/null 1>/dev/null 
-	then 
-	
-	echo -e $DIV
-	echo -e "\n$ARCH architecture detected and its dependencies are satisfied\n"
-else
-	echo -e $DIV
-	
-	read -p "You're running $ARCH arhitecture, there are dependencies 
-($PACKAGE) which are not present on your system? 
+read -p "Dependencies ["+$PACKAGE+"] are required.
 
 Install?
 [Y]es, [N]o, [S]kip: " response
