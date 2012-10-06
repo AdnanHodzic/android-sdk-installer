@@ -21,32 +21,36 @@
 
 ASI="Android SDK Installer"
 
-ASI_VERSION="0.1.1"
+ASI_VERSION="0.1.2"
 
 DIV="\n----------------------------------------------------------------------------\n";
 
+
+# Prevents most errors that come from interrupted installation of packages.
+sudo dpkg --configure -a
+
 # Check if user is root or not
 
-ROOT_UID=0
-if [ "$UID" -ne "$ROOT_UID" ]
-then
-	echo -e $DIV
-	echo -e "Please run $ASI as root.
-	\n(i.e: sudo android-sdk-installer)
-	\nInstallation aborted"
-	echo -e $DIV
-	exit 1
-else
-	echo -e $DIV
-	echo -e "Welcome to $ASI $ASI_VERSION
-	\nThe installer will guide you through the rest of the process."
-fi
+#ROOT_UID=0
+#if [ "$UID" -ne "$ROOT_UID" ]
+#then
+#	echo -e $DIV
+#	echo -e "Please run $ASI as root.
+#	\n(i.e: sudo android-sdk-installer)
+#	\nInstallation aborted"
+#	echo -e $DIV
+#	exit 1
+#else
+#	echo -e $DIV
+#	echo -e "Welcome to $ASI $ASI_VERSION
+#	\nThe installer will guide you through the rest of the process."
+#fi
 
 # Detect architecture, if x86_64 install its dependencies
 
 ARCH="$(uname -m)"
 	
-PACKAGE=ia32-libs
+PACKAGE="lib32ncurses5 lib32stdc++6"
 
 # This whole step needs to be rewritten due to getting rid of ia32-libs by
 # moving to Multiarch
@@ -54,18 +58,16 @@ PACKAGE=ia32-libs
 # References:
 # http://wiki.debian.org/Multiarch
 
-if [ "$(dpkg-architecture -qDEB_BUILD_ARCH)" == "amd64" ]
+if dpkg -s "lib32ncurses5" 2>/dev/null 1>/dev/null
+then 
+if dpkg -s "lib32stdc++6" 2>/dev/null 1>/dev/null
 then
-	if dpkg -s "$PACKAGE" 2>/dev/null 1>/dev/null 
-	then 
-	
+
 	echo -e $DIV
-	echo -e "\n$ARCH architecture detected and its dependencies are satisfied\n"
+  	echo -e "Dependencies $PACKAGE are already installed.\nMoving on ..."
+  	
 else
-	echo -e $DIV
-	
-	read -p "You're running $ARCH arhitecture, there are dependencies 
-($PACKAGE) which are not present on your system? 
+read -p "Dependencies $PACKAGE are required.
 
 Install?
 [Y]es, [N]o, [S]kip: " response
@@ -74,7 +76,7 @@ case $response in
 	
 [Yy]* ) 	
 	echo -e "\nOkay, will now install $PACKAGE\n"
-	apt-get install $PACKAGE
+	sudo apt-get install $PACKAGE
 	;;
 	
 	[Nn]* ) 
@@ -93,7 +95,7 @@ fi
 
 # Check if OpenJDK Development Kit (JDK) dependency is satisfied
 
-PACKAGE=openjdk-6-jdk
+PACKAGE=openjdk-7-jdk
 
 if dpkg -s "$PACKAGE" 2>/dev/null 1>/dev/null
 then 
@@ -112,7 +114,7 @@ Would you like to install it?
 	case $response in
 	
 	[Yy]* ) 
-		apt-get install openjdk-6-jdk
+		sudo apt-get install $PACKAGE
 	;;
 	
 	[Nn]* ) 
@@ -152,15 +154,15 @@ the installation process, remove?
 case $response in
 
 	[Yy]* ) 	
-	rm -f $SDK_R 2>/dev/null
+	sudo rm -f $SDK_R 2>/dev/null
 	;;
 
 	[Nn]* ) 
-	chmod 666 $SDK_R
+	sudo chmod 666 $SDK_R
 	;;
 	
 	[Ss]* )
-	chmod 666 $SDK_R
+	sudo chmod 666 $SDK_R
 	;;
 	
 	* ) 
@@ -184,15 +186,15 @@ the installation process, remove?
 case $response in
 
 	[Yy]* ) 	
-	rm -f $SDK_15 2>/dev/null
+	sudo rm -f $SDK_15 2>/dev/null
 	;;
 
 	[Nn]* ) 
-	chmod 666 $SDK_15
+	sudo chmod 666 $SDK_15
 	;;
 	
 	[Ss]* )
-	chmod 666 $SDK_15
+	sudo chmod 666 $SDK_15
 	;;
 	
 	* ) 
@@ -216,15 +218,15 @@ the installation process, remove?
 case $response in
 
 	[Yy]* ) 	
-	rm -f $SDK_21 2>/dev/null
+	sudo rm -f $SDK_21 2>/dev/null
 	;;
 
 	[Nn]* ) 
-	chmod 666 $SDK_21
+	sudo chmod 666 $SDK_21
 	;;
 	
 	[Ss]* )
-	chmod 666 $SDK_21
+	sudo chmod 666 $SDK_21
 	;;
 	
 	* ) 
@@ -248,15 +250,15 @@ the installation process, remove?
 case $response in
 
 	[Yy]* ) 	
-	rm -f $ADT_RM 2>/dev/null
+	sudo rm -f $ADT_RM 2>/dev/null
 	;;
 
 	[Nn]* ) 
-	chmod 666 $ADT_RM
+	sudo chmod 666 $ADT_RM
 	;;
 	
 	[Ss]* )
-	chmod 666 $ADT_RM
+	sudo chmod 666 $ADT_RM
 	;;
 	
 	* ) 
@@ -288,8 +290,8 @@ case $response in
 
 [Yy]* ) 
 	# backup and/or remove existing /opt/android-sdk-linux directory
-	cp -R $DIRECTORY $DIRECTORY.sdk.bak
-	rm -Rf $DIRECTORY 2>/dev/null
+	sudo cp -R $DIRECTORY $DIRECTORY.sdk.bak
+	sudo rm -Rf $DIRECTORY 2>/dev/null
 	;;
 		
 [Nn]* ) 
@@ -306,8 +308,8 @@ case $response in
 esac
 
 else
-	mkdir $DIRECTORY
-	chmod 755 -R $DIRECTORY
+	sudo mkdir $DIRECTORY
+	sudo chmod 755 -R $DIRECTORY
 fi
 
 echo -e $DIV
@@ -341,7 +343,7 @@ case $response in
 [Yy]* )
 	echo -e "\nWill now download the $STARTER\n"
 	wget $LATEST_STARTER_URL
-	tar -xzvf $LATEST_STARTER_PAK -C /opt/
+	sudo tar -xzvf $LATEST_STARTER_PAK -C /opt/
     echo -e "\n$STARTER successfully installed"
 ;;
 
@@ -381,7 +383,7 @@ case $response in
 	# Download latest Android SDK
 	echo -e "\nWill now download $LATEST_REV\n"
 	wget $LATEST_REV_URL
-	unzip $LATEST_REV_PAK -d /opt/android-sdk-linux/platforms
+	sudo unzip $LATEST_REV_PAK -d /opt/android-sdk-linux/platforms
 	echo -e "\nSuccessfully installed Android API $LATEST_REV"
 ;;
     
@@ -413,7 +415,7 @@ case $response in
 	echo -e "\nWill now download $CLASSIC_REV\n"
 	wget $CLASSIC_REV_URL
 	# check if there's no "android-sdk-linux/platforms" do you have to make one?
-	unzip $SDK_21 -d /opt/android-sdk-linux/platforms
+	sudo unzip $SDK_21 -d /opt/android-sdk-linux/platforms
 	echo -e "\nSuccessfully installed Android API $CLASSIC_VERSION"
 ;;
 	
@@ -464,8 +466,8 @@ case $response in
 
 [Yy]* ) 	
 	# Backup and remove current android-sdk.sh file
-	cp -f $PATHV $PATHV.sdk.bak
-	rm -f $PATHV 2>/dev/null
+	sudo cp -f $PATHV $PATHV.sdk.bak
+	sudo rm -f $PATHV 2>/dev/null
 ;;
 
 [Nn]* ) 
@@ -484,22 +486,19 @@ esac
 
 else
 
-touch $PATHV
-chmod 644 $PATHV
+sudo touch $PATHV
+sudo chmod 644 $PATHV
 
 fi
 
-# Create android-sdk.sh file
-	
-echo -n '#!/bin/bash -e
-# PATH for Android SDK
-PATH="/opt/android-sdk-linux/tools:/opt/android-sdk-linux/platforms:$PATH"' > $PATHV
+# Create some directories
+sudo mkdir "/opt/android-sdk-linux/platform-tools"
 
 	# apply PATH without user having to log out
-	export PATH="/opt/android-sdk-linux/tools:/opt/android-sdk-linux/platforms:$PATH"
+	export PATH="/opt/android-sdk-linux/tools:/opt/android-sdk-linux/platforms:/opt/android-sdk-linux/platform-tools:$PATH"
 	
 	# make sure permissions are alright
-	chmod -R 755 $DIRECTORY
+	sudo chmod -R 755 $DIRECTORY
 
 	# in future add "sed" here in order to avoid repetitive code
 
@@ -545,10 +544,10 @@ case $response in
   	echo -e "\n$PACKAGE is installed.\nWill now download Eclipse ADT Plugin\n"
 
 	wget $ADT_RM_URL
-	unzip $ADT_RM -d /tmp/
+	sudo unzip $ADT_RM -d /tmp/
 	
-	cp /tmp/features/*.jar /usr/share/eclipse/features/
-	cp /tmp/plugins/*.jar /usr/share/eclipse/plugins/
+	sudo cp /tmp/features/*.jar /usr/share/eclipse/features/
+	sudo cp /tmp/plugins/*.jar /usr/share/eclipse/plugins/
 	# see what to do with rest of the files web/ index.html & site.xml
 	
 	else 
@@ -560,15 +559,15 @@ $PACKAGE IDE is NOT installed, would you like to install it?
 	case $response in
 	
 	[Yy]* ) 
-		apt-get install eclipse
+		sudo apt-get install eclipse
 		
 		echo -e "\nOkay, will now download Eclipse ADT Plugin\n"
 
 		wget $ADT_RM_URL
-		unzip $ADT_RM -d /tmp/
+		sudo unzip $ADT_RM -d /tmp/
 	
-		cp /tmp/features/*.jar /usr/share/eclipse/features/
-		cp /tmp/plugins/*.jar /usr/share/eclipse/plugins/
+		sudo cp /tmp/features/*.jar /usr/share/eclipse/features/
+		sudo cp /tmp/plugins/*.jar /usr/share/eclipse/plugins/
 		# see what to do with rest of the files web/ index.html & site.xml
 	;;
 	
@@ -635,8 +634,8 @@ case $response in
 
 	[Yy]* ) 	
 	# backup and remove current 51-android.rules file
-	cp -f $RULES $RULES.sdk.bak
-	rm -f $RULES 2>/dev/null
+	sudo cp -f $RULES $RULES.sdk.bak
+	sudo rm -f $RULES 2>/dev/null
 	;;
 
 	[Nn]* ) echo -e "\nInstaller did NOT add hardware support, Goodbye"
@@ -654,8 +653,8 @@ esac
 else
 
 # create rules files and give it proper permissions
-touch $RULES
-chmod 644 $RULES
+sudo touch $RULES
+sudo chmod 644 $RULES
 
 fi
 
@@ -777,7 +776,7 @@ SUBSYSTEM=="usb", ATTR{idVendor}=="19d2", MODE="0666", OWNER="plugdev"
 # in future add "sed" in order to avoid repetitive code
 
 # provide all groups, users and others with read permissions for this file
-chmod a+r $RULES
+sudo chmod a+r $RULES
 
 echo -e "\nHardware device support successfully installed"
 
@@ -806,7 +805,7 @@ Packages seem to be missing, install required packages?
 	case $response in
 
 		[Yy]* ) 
-		apt-get install mtp-tools mtpfs
+		sudo apt-get install mtp-tools mtpfs
 		;;
 		
 		[Nn]* ) 
@@ -865,15 +864,15 @@ read -p "Installer left \"$SDK_R\" file, would you like to remove it?
 case $response in
 
 	[Yy]* ) 	
-	rm -f $SDK_R 2>/dev/null
+	sudo rm -f $SDK_R 2>/dev/null
 	;;
 
 	[Nn]* ) 
-	chmod 666 $SDK_R
+	sudo chmod 666 $SDK_R
 	;;
 
 	[Ss]* )
-	chmod 666 $SDK_R
+	sudo chmod 666 $SDK_R
 	;;
 
 	* ) 
@@ -897,15 +896,15 @@ the installation process, remove?
 case $response in
 
 	[Yy]* ) 	
-	rm -f $SDK_15 2>/dev/null
+	sudo rm -f $SDK_15 2>/dev/null
 	;;
 
 	[Nn]* ) 
-	chmod 666 $SDK_15
+	sudo chmod 666 $SDK_15
 	;;
 	
 	[Ss]* )
-	chmod 666 $SDK_15
+	sudo chmod 666 $SDK_15
 	;;
 	
 	* ) 
@@ -928,15 +927,15 @@ read -p "Installer left \"$SDK_21\" file, would you like to remove it?
 case $response in
 
 	[Yy]* ) 	
-	rm -f $SDK_21 2>/dev/null
+	sudo rm -f $SDK_21 2>/dev/null
 	;;
 
 	[Nn]* ) 
-	chmod 666 $SDK_21
+	sudo chmod 666 $SDK_21
 	;;
 
 	[Ss]* )
-	chmod 666 $SDK_21
+	sudo chmod 666 $SDK_21
 	;;
 
 	* ) 
@@ -959,15 +958,15 @@ read -p "Installer left \"$ADT_RM\" file, would you like to remove it?
 case $response in
 
 	[Yy]* ) 	
-	rm -f $ADT_RM 2>/dev/null
+	sudo rm -f $ADT_RM 2>/dev/null
 	;;
 
 	[Nn]* ) 
-	chmod 666 $ADT_RM
+	sudo chmod 666 $ADT_RM
 	;;
 
 	[Ss]* )
-	chmod 666 $ADT_RM
+	sudo chmod 666 $ADT_RM
 	;;
 
 	* ) 
@@ -981,6 +980,6 @@ fi
 echo -e $DIV
 
 echo -e "Installation complete. Feel free to run \"android-sdk-installer\" at any
-time to (re)configure.\n\nEnjoy!\n";
+time to (re)configure.\nIf you want to configure this installation, run \"android\" in root.\nEnjoy!\n";
 
 exit 0
