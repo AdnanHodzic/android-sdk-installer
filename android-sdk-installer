@@ -664,115 +664,115 @@ fi
 # Consider removing "OWNER="plugdev" due to the fact that during the boot
 # system (Debian Sid) reports it's an unknown user
 
-echo -n '# udev rules which add hardware device support on Linux
+sudo bash -c "echo -n '# udev rules which add hardware device support on Linux
 #
-# "Using Hardware devices"
+# \"Using Hardware devices\"
 # (http://developer.android.com/guide/developing/device.html)
 #
 # List last updated: May 9, 2012
 
 # Acer
-SUBSYSTEM=="usb", ATTR{idVendor}=="0502", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"0502\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # ASUS
-SUBSYSTEM=="usb", ATTR{idVendor}=="0b05", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"0b05\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Dell
-SUBSYSTEM=="usb", ATTR{idVendor}=="413c", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"413c\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Foxconn
-SUBSYSTEM=="usb", ATTR{idVendor}=="0489", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"0489\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Fujitsu
-SUBSYSTEM=="usb", ATTR{idVendor}=="04c5", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"04c5\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Fujitsu Toshiba
-SUBSYSTEM=="usb", ATTR{idVendor}=="04c5", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"04c5\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Garmin-Asus
-SUBSYSTEM=="usb", ATTR{idVendor}=="091e", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"091e\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Google
-SUBSYSTEM=="usb", ATTR{idVendor}=="18d1", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"18d1\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Hisense
-SUBSYSTEM=="usb", ATTR{idVendor}=="109b", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"109b\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # HTC
-SUBSYSTEM=="usb", ATTR{idVendor}=="0bb4", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"0bb4\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Huawei
-SUBSYSTEM=="usb", ATTR{idVendor}=="12d1", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"12d1\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # K-Touch
-SUBSYSTEM=="usb", ATTR{idVendor}=="24e3", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"24e3\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # KT Tech
-SUBSYSTEM=="usb", ATTR{idVendor}=="2116", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"2116\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Kyocera
-SUBSYSTEM=="usb", ATTR{idVendor}=="0482", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"0482\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Lenovo
-SUBSYSTEM=="usb", ATTR{idVendor}=="17ef", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"17ef\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # LG
-SUBSYSTEM=="usb", ATTR{idVendor}=="1004", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"1004\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Motorola
-SUBSYSTEM=="usb", ATTR{idVendor}=="22b8", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"22b8\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # NEC
-SUBSYSTEM=="usb", ATTR{idVendor}=="0409", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"0409\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Nook
-SUBSYSTEM=="usb", ATTR{idVendor}=="2080", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"2080\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Nvidia
-SUBSYSTEM=="usb", ATTR{idVendor}=="0955", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"0955\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # OTGV
-SUBSYSTEM=="usb", ATTR{idVendor}=="2257", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"2257\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Pantech
-SUBSYSTEM=="usb", ATTR{idVendor}=="10a9", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"10a9\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Pegatron
-SUBSYSTEM=="usb", ATTR{idVendor}=="1d4d", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"1d4d\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Philips
-SUBSYSTEM=="usb", ATTR{idVendor}=="0471", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"0471\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # PMC-Sierra
-SUBSYSTEM=="usb", ATTR{idVendor}=="04da", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"04da\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Qualcomm
-SUBSYSTEM=="usb", ATTR{idVendor}=="05c6", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"05c6\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # SK Telesys
-SUBSYSTEM=="usb", ATTR{idVendor}=="1f53", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"1f53\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Samsung
-SUBSYSTEM=="usb", ATTR{idVendor}=="04e8", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"04e8\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Sharp
-SUBSYSTEM=="usb", ATTR{idVendor}=="04dd", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"04dd\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Sony
-SUBSYSTEM=="usb", ATTR{idVendor}=="054c", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"054c\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Sony Ericsson
-SUBSYSTEM=="usb", ATTR{idVendor}=="0fce", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"0fce\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Teleepoch
-SUBSYSTEM=="usb", ATTR{idVendor}=="2340", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"2340\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Toshiba
-SUBSYSTEM=="usb", ATTR{idVendor}=="0930", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"0930\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # ZTE
-SUBSYSTEM=="usb", ATTR{idVendor}=="19d2", MODE="0666", OWNER="plugdev"
-' > $RULES
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"19d2\", MODE=\"0666\", OWNER=\"plugdev\"
+' > $RULES"
 
 # in future add "sed" in order to avoid repetitive code
 
@@ -980,14 +980,14 @@ fi
 
 echo -e $DIV
 
-echo -p "Would you like to configure your Android SDK installation?
+read -p "Would you like to configure your Android SDK installation?
 
 [Y]es, [N]o, [S]kip :" response
 
 case $response in
 
-	[Yy]* ) 	
-	sudo android
+	[Yy]* )	
+	android
 	;;
 
 	* ) 
