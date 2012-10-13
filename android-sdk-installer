@@ -980,7 +980,25 @@ fi
 
 echo -e $DIV
 
-echo -e "Installation complete. Feel free to run \"android-sdk-installer\" at any
-time to (re)configure.\nIf you want to configure this installation, run \"android\" in root.\nEnjoy!\n";
+echo -p "Would you like to configure your Android SDK installation?
+
+[Y]es, [N]o, [S]kip :" response
+
+case $response in
+
+	[Yy]* ) 	
+	sudo android
+	;;
+
+	* ) 
+	echo "Wrong value: installaton aborted."
+	exit 1
+	;;
+
+esac
+
+echo -e $DIV
+
+echo -e "Installation complete.\nEnjoy!\n";
 
 exit 0
