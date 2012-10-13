@@ -309,7 +309,7 @@ esac
 
 else
 	sudo mkdir $DIRECTORY
-        sudo chmod -R 755 $DIRECTORY
+        sudo chmod 755 -R $DIRECTORY
 fi
 
 echo -e $DIV
