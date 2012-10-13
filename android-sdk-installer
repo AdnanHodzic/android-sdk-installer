@@ -309,7 +309,7 @@ esac
 
 else
 	sudo mkdir $DIRECTORY
-	sudo chmod 755 -R $DIRECTORY
+        sudo chmod -R 755 $DIRECTORY
 fi
 
 echo -e $DIV
@@ -490,19 +490,20 @@ sudo touch $PATHV
 sudo chmod 644 $PATHV
 
 fi
+    # apply PATH without user having to log out
+    export PATH=$PATH:/opt/android-sdk-linux/tools:/opt/android-sdk-linux/platforms:/opt/android-sdk-linux/platform-tools
+    
+    # create a backup of bash.bashrc
+    sudo cp /etc/bash.bashrc /etc/bash.bashrc.bak
+    
+    sudo bash -c "echo '' >> /etc/bash.bashrc"
+    sudo bash -c "echo '# android-sdk-installer path setting' >> /etc/bash.bashrc"
+    sudo bash -c "echo 'export PATH=$PATH:/opt/android-sdk-linux/tools:/opt/android-sdk-linux/platforms:/opt/android-sdk-linux/platform-tools' >> /etc/bash.bashrc"
 
-# Create some directories
-sudo mkdir "/opt/android-sdk-linux/platform-tools"
+    # in future add "sed" here in order to avoid repetitive code
 
-	# apply PATH without user having to log out
-	export PATH="/opt/android-sdk-linux/tools:/opt/android-sdk-linux/platforms:/opt/android-sdk-linux/platform-tools:$PATH"
-	
-	# make sure permissions are alright
-	sudo chmod -R 755 $DIRECTORY
-
-	# in future add "sed" here in order to avoid repetitive code
-
-	echo -e "\nPATH successfully added and configured."
+    echo -e "\nPATH successfully added and configured."
+    echo "If you need to restore your bash.bashrc file that has been modified, you can do so with /etc/bash.bashrc.bak"
 ;;
 
 [Nn]* ) 
