@@ -498,7 +498,7 @@ fi
     
     sudo bash -c "echo '' >> /etc/bash.bashrc"
     sudo bash -c "echo '# android-sdk-installer path setting' >> /etc/bash.bashrc"
-    sudo bash -c "echo 'export PATH=$PATH:/opt/android-sdk-linux/tools:/opt/android-sdk-linux/platforms:/opt/android-sdk-linux/platform-tools' >> /etc/bash.bashrc"
+    sudo bash -c "echo 'export PATH=\$PATH:/opt/android-sdk-linux/tools:/opt/android-sdk-linux/platforms:/opt/android-sdk-linux/platform-tools' >> /etc/bash.bashrc"
 
     # in future add "sed" here in order to avoid repetitive code
 
