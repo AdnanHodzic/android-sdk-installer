@@ -37,6 +37,45 @@ dpkg --configure -a
 # Detect architecture, if x86_64 install its dependencies
 
 ARCH="$(uname -m)"
+
+DEPEND="wget unzip"
+
+# Install some dependencies required.
+
+if dpkg -s "wget" 2>/dev/null 1>/dev/null
+then 
+if dpkg -s "unzip" 2>/dev/null 1>/dev/null
+then
+
+	echo -e $DIV
+  	echo -e "Dependencies $DEPEND to run this script are already installed.\nMoving on ..."
+  	
+else
+read -p "Dependencies $DEPEND to run this script are required.
+
+Install?
+[Y]es, [N]o, [S]kip: " response
+
+case $response in
+	
+[Yy]* ) 	
+	echo -e "\nOkay, will now install $DEPEND\n"
+	apt-get install $DEPEND
+	;;
+	
+	[Nn]* ) 
+	echo -e "\nPlease install $DEPEND manually"
+	;;
+	
+	[Ss]* ) ;;
+	
+	* ) 
+	echo "Wrong value: installaton aborted." 
+	exit 1;;
+	
+esac
+fi
+fi
 	
 PACKAGE="lib32ncurses5 lib32stdc++6"
 
@@ -52,10 +91,10 @@ if dpkg -s "lib32stdc++6" 2>/dev/null 1>/dev/null
 then
 
 	echo -e $DIV
-  	echo -e "Dependencies $PACKAGE are already installed.\nMoving on ..."
+  	echo -e "Dependencies $PACKAGE to install the Android SDK are already installed.\nMoving on ..."
   	
 else
-read -p "Dependencies $PACKAGE are required.
+read -p "Dependencies $PACKAGE to install the Android SDK are required.
 
 Install?
 [Y]es, [N]o, [S]kip: " response
