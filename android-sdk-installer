@@ -25,30 +25,57 @@ ASI_VERSION="0.1.2"
 
 DIV="\n----------------------------------------------------------------------------\n";
 
+# Make sure only root can run our script
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root" 1>&2
+   exit 1
+fi
 
 # Prevents most errors that come from interrupted installation of packages.
-sudo dpkg --configure -a
-
-# Check if user is root or not
-
-#ROOT_UID=0
-#if [ "$UID" -ne "$ROOT_UID" ]
-#then
-#	echo -e $DIV
-#	echo -e "Please run $ASI as root.
-#	\n(i.e: sudo android-sdk-installer)
-#	\nInstallation aborted"
-#	echo -e $DIV
-#	exit 1
-#else
-#	echo -e $DIV
-#	echo -e "Welcome to $ASI $ASI_VERSION
-#	\nThe installer will guide you through the rest of the process."
-#fi
+dpkg --configure -a
 
 # Detect architecture, if x86_64 install its dependencies
 
 ARCH="$(uname -m)"
+
+DEPEND="wget unzip"
+
+# Install some dependencies required.
+
+if dpkg -s "wget" 2>/dev/null 1>/dev/null
+then 
+if dpkg -s "unzip" 2>/dev/null 1>/dev/null
+then
+
+	echo -e $DIV
+  	echo -e "Dependencies $DEPEND to run this script are already installed.\nMoving on ..."
+  	
+else
+read -p "Dependencies $DEPEND to run this script are required.
+
+Install?
+[Y]es, [N]o, [S]kip: " response
+
+case $response in
+	
+[Yy]* ) 	
+	echo -e "\nOkay, will now install $DEPEND\n"
+	apt-get install $DEPEND
+	;;
+	
+	[Nn]* ) 
+	echo -e "\nPlease install $DEPEND manually"
+	;;
+	
+	[Ss]* ) ;;
+	
+	* ) 
+	echo "Wrong value: installaton aborted." 
+	exit 1;;
+	
+esac
+fi
+fi
 	
 PACKAGE="lib32ncurses5 lib32stdc++6"
 
@@ -64,10 +91,10 @@ if dpkg -s "lib32stdc++6" 2>/dev/null 1>/dev/null
 then
 
 	echo -e $DIV
-  	echo -e "Dependencies $PACKAGE are already installed.\nMoving on ..."
+  	echo -e "Dependencies $PACKAGE to install the Android SDK are already installed.\nMoving on ..."
   	
 else
-read -p "Dependencies $PACKAGE are required.
+read -p "Dependencies $PACKAGE to install the Android SDK are required.
 
 Install?
 [Y]es, [N]o, [S]kip: " response
@@ -76,7 +103,7 @@ case $response in
 	
 [Yy]* ) 	
 	echo -e "\nOkay, will now install $PACKAGE\n"
-	sudo apt-get install $PACKAGE
+	apt-get install $PACKAGE
 	;;
 	
 	[Nn]* ) 
@@ -114,7 +141,7 @@ Would you like to install it?
 	case $response in
 	
 	[Yy]* ) 
-		sudo apt-get install $PACKAGE
+		apt-get install $PACKAGE
 	;;
 	
 	[Nn]* ) 
@@ -154,15 +181,15 @@ the installation process, remove?
 case $response in
 
 	[Yy]* ) 	
-	sudo rm -f $SDK_R 2>/dev/null
+	rm -f $SDK_R 2>/dev/null
 	;;
 
 	[Nn]* ) 
-	sudo chmod 666 $SDK_R
+	chmod 666 $SDK_R
 	;;
 	
 	[Ss]* )
-	sudo chmod 666 $SDK_R
+	chmod 666 $SDK_R
 	;;
 	
 	* ) 
@@ -186,15 +213,15 @@ the installation process, remove?
 case $response in
 
 	[Yy]* ) 	
-	sudo rm -f $SDK_15 2>/dev/null
+	rm -f $SDK_15 2>/dev/null
 	;;
 
 	[Nn]* ) 
-	sudo chmod 666 $SDK_15
+	chmod 666 $SDK_15
 	;;
 	
 	[Ss]* )
-	sudo chmod 666 $SDK_15
+	chmod 666 $SDK_15
 	;;
 	
 	* ) 
@@ -218,15 +245,15 @@ the installation process, remove?
 case $response in
 
 	[Yy]* ) 	
-	sudo rm -f $SDK_21 2>/dev/null
+	rm -f $SDK_21 2>/dev/null
 	;;
 
 	[Nn]* ) 
-	sudo chmod 666 $SDK_21
+	chmod 666 $SDK_21
 	;;
 	
 	[Ss]* )
-	sudo chmod 666 $SDK_21
+	chmod 666 $SDK_21
 	;;
 	
 	* ) 
@@ -250,15 +277,15 @@ the installation process, remove?
 case $response in
 
 	[Yy]* ) 	
-	sudo rm -f $ADT_RM 2>/dev/null
+	rm -f $ADT_RM 2>/dev/null
 	;;
 
 	[Nn]* ) 
-	sudo chmod 666 $ADT_RM
+	chmod 666 $ADT_RM
 	;;
 	
 	[Ss]* )
-	sudo chmod 666 $ADT_RM
+	chmod 666 $ADT_RM
 	;;
 	
 	* ) 
@@ -290,8 +317,8 @@ case $response in
 
 [Yy]* ) 
 	# backup and/or remove existing /opt/android-sdk-linux directory
-	sudo cp -R $DIRECTORY $DIRECTORY.sdk.bak
-	sudo rm -Rf $DIRECTORY 2>/dev/null
+	cp -R $DIRECTORY $DIRECTORY.sdk.bak
+	rm -Rf $DIRECTORY 2>/dev/null
 	;;
 		
 [Nn]* ) 
@@ -308,8 +335,8 @@ case $response in
 esac
 
 else
-	sudo mkdir $DIRECTORY
-	sudo chmod 755 -R $DIRECTORY
+	mkdir $DIRECTORY
+        chmod 755 -R $DIRECTORY
 fi
 
 echo -e $DIV
@@ -343,8 +370,8 @@ case $response in
 [Yy]* )
 	echo -e "\nWill now download the $STARTER\n"
 	wget $LATEST_STARTER_URL
-	sudo tar -xzvf $LATEST_STARTER_PAK -C /opt/
-    echo -e "\n$STARTER successfully installed"
+	tar -xzvf $LATEST_STARTER_PAK -C /opt/
+        echo -e "\n$STARTER successfully installed"
 ;;
 
 [Nn]* ) 
@@ -383,7 +410,7 @@ case $response in
 	# Download latest Android SDK
 	echo -e "\nWill now download $LATEST_REV\n"
 	wget $LATEST_REV_URL
-	sudo unzip $LATEST_REV_PAK -d /opt/android-sdk-linux/platforms
+	unzip $LATEST_REV_PAK -d /opt/android-sdk-linux/platforms
 	echo -e "\nSuccessfully installed Android API $LATEST_REV"
 ;;
     
@@ -415,7 +442,7 @@ case $response in
 	echo -e "\nWill now download $CLASSIC_REV\n"
 	wget $CLASSIC_REV_URL
 	# check if there's no "android-sdk-linux/platforms" do you have to make one?
-	sudo unzip $SDK_21 -d /opt/android-sdk-linux/platforms
+	unzip $SDK_21 -d /opt/android-sdk-linux/platforms
 	echo -e "\nSuccessfully installed Android API $CLASSIC_VERSION"
 ;;
 	
@@ -466,8 +493,8 @@ case $response in
 
 [Yy]* ) 	
 	# Backup and remove current android-sdk.sh file
-	sudo cp -f $PATHV $PATHV.sdk.bak
-	sudo rm -f $PATHV 2>/dev/null
+	cp -f $PATHV $PATHV.sdk.bak
+	rm -f $PATHV 2>/dev/null
 ;;
 
 [Nn]* ) 
@@ -486,23 +513,24 @@ esac
 
 else
 
-sudo touch $PATHV
-sudo chmod 644 $PATHV
+touch $PATHV
+chmod 644 $PATHV
 
 fi
+    # apply PATH without user having to log out
+    export PATH=$PATH:/opt/android-sdk-linux/tools:/opt/android-sdk-linux/platforms:/opt/android-sdk-linux/platform-tools
+    
+    # create a backup of bash.bashrc
+    cp /etc/bash.bashrc /etc/bash.bashrc.bak
+    
+    echo '' >> /etc/bash.bashrc
+    echo '# android-sdk-installer path setting' >> /etc/bash.bashrc
+    echo 'export PATH=\$PATH:/opt/android-sdk-linux/tools:/opt/android-sdk-linux/platforms:/opt/android-sdk-linux/platform-tools' >> /etc/bash.bashrc
 
-# Create some directories
-sudo mkdir "/opt/android-sdk-linux/platform-tools"
+    # in future add "sed" here in order to avoid repetitive code
 
-	# apply PATH without user having to log out
-	export PATH="/opt/android-sdk-linux/tools:/opt/android-sdk-linux/platforms:/opt/android-sdk-linux/platform-tools:$PATH"
-	
-	# make sure permissions are alright
-	sudo chmod -R 755 $DIRECTORY
-
-	# in future add "sed" here in order to avoid repetitive code
-
-	echo -e "\nPATH successfully added and configured."
+    echo -e "\nPATH successfully added and configured."
+    echo "If you need to restore your bash.bashrc file that has been modified, you can do so with /etc/bash.bashrc.bak"
 ;;
 
 [Nn]* ) 
@@ -544,10 +572,10 @@ case $response in
   	echo -e "\n$PACKAGE is installed.\nWill now download Eclipse ADT Plugin\n"
 
 	wget $ADT_RM_URL
-	sudo unzip $ADT_RM -d /tmp/
+	unzip $ADT_RM -d /tmp/
 	
-	sudo cp /tmp/features/*.jar /usr/share/eclipse/features/
-	sudo cp /tmp/plugins/*.jar /usr/share/eclipse/plugins/
+	cp /tmp/features/*.jar /usr/share/eclipse/features/
+	cp /tmp/plugins/*.jar /usr/share/eclipse/plugins/
 	# see what to do with rest of the files web/ index.html & site.xml
 	
 	else 
@@ -559,15 +587,15 @@ $PACKAGE IDE is NOT installed, would you like to install it?
 	case $response in
 	
 	[Yy]* ) 
-		sudo apt-get install eclipse
+		apt-get install eclipse
 		
 		echo -e "\nOkay, will now download Eclipse ADT Plugin\n"
 
 		wget $ADT_RM_URL
-		sudo unzip $ADT_RM -d /tmp/
+		unzip $ADT_RM -d /tmp/
 	
-		sudo cp /tmp/features/*.jar /usr/share/eclipse/features/
-		sudo cp /tmp/plugins/*.jar /usr/share/eclipse/plugins/
+		cp /tmp/features/*.jar /usr/share/eclipse/features/
+		cp /tmp/plugins/*.jar /usr/share/eclipse/plugins/
 		# see what to do with rest of the files web/ index.html & site.xml
 	;;
 	
@@ -634,8 +662,8 @@ case $response in
 
 	[Yy]* ) 	
 	# backup and remove current 51-android.rules file
-	sudo cp -f $RULES $RULES.sdk.bak
-	sudo rm -f $RULES 2>/dev/null
+	cp -f $RULES $RULES.sdk.bak
+	rm -f $RULES 2>/dev/null
 	;;
 
 	[Nn]* ) echo -e "\nInstaller did NOT add hardware support, Goodbye"
@@ -653,8 +681,8 @@ esac
 else
 
 # create rules files and give it proper permissions
-sudo touch $RULES
-sudo chmod 644 $RULES
+touch $RULES
+chmod 644 $RULES
 
 fi
 
@@ -665,118 +693,118 @@ fi
 
 echo -n '# udev rules which add hardware device support on Linux
 #
-# "Using Hardware devices"
+# \"Using Hardware devices\"
 # (http://developer.android.com/guide/developing/device.html)
 #
 # List last updated: May 9, 2012
 
 # Acer
-SUBSYSTEM=="usb", ATTR{idVendor}=="0502", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"0502\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # ASUS
-SUBSYSTEM=="usb", ATTR{idVendor}=="0b05", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"0b05\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Dell
-SUBSYSTEM=="usb", ATTR{idVendor}=="413c", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"413c\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Foxconn
-SUBSYSTEM=="usb", ATTR{idVendor}=="0489", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"0489\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Fujitsu
-SUBSYSTEM=="usb", ATTR{idVendor}=="04c5", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"04c5\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Fujitsu Toshiba
-SUBSYSTEM=="usb", ATTR{idVendor}=="04c5", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"04c5\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Garmin-Asus
-SUBSYSTEM=="usb", ATTR{idVendor}=="091e", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"091e\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Google
-SUBSYSTEM=="usb", ATTR{idVendor}=="18d1", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"18d1\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Hisense
-SUBSYSTEM=="usb", ATTR{idVendor}=="109b", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"109b\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # HTC
-SUBSYSTEM=="usb", ATTR{idVendor}=="0bb4", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"0bb4\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Huawei
-SUBSYSTEM=="usb", ATTR{idVendor}=="12d1", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"12d1\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # K-Touch
-SUBSYSTEM=="usb", ATTR{idVendor}=="24e3", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"24e3\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # KT Tech
-SUBSYSTEM=="usb", ATTR{idVendor}=="2116", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"2116\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Kyocera
-SUBSYSTEM=="usb", ATTR{idVendor}=="0482", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"0482\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Lenovo
-SUBSYSTEM=="usb", ATTR{idVendor}=="17ef", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"17ef\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # LG
-SUBSYSTEM=="usb", ATTR{idVendor}=="1004", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"1004\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Motorola
-SUBSYSTEM=="usb", ATTR{idVendor}=="22b8", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"22b8\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # NEC
-SUBSYSTEM=="usb", ATTR{idVendor}=="0409", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"0409\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Nook
-SUBSYSTEM=="usb", ATTR{idVendor}=="2080", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"2080\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Nvidia
-SUBSYSTEM=="usb", ATTR{idVendor}=="0955", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"0955\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # OTGV
-SUBSYSTEM=="usb", ATTR{idVendor}=="2257", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"2257\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Pantech
-SUBSYSTEM=="usb", ATTR{idVendor}=="10a9", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"10a9\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Pegatron
-SUBSYSTEM=="usb", ATTR{idVendor}=="1d4d", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"1d4d\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Philips
-SUBSYSTEM=="usb", ATTR{idVendor}=="0471", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"0471\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # PMC-Sierra
-SUBSYSTEM=="usb", ATTR{idVendor}=="04da", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"04da\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Qualcomm
-SUBSYSTEM=="usb", ATTR{idVendor}=="05c6", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"05c6\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # SK Telesys
-SUBSYSTEM=="usb", ATTR{idVendor}=="1f53", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"1f53\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Samsung
-SUBSYSTEM=="usb", ATTR{idVendor}=="04e8", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"04e8\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Sharp
-SUBSYSTEM=="usb", ATTR{idVendor}=="04dd", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"04dd\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Sony
-SUBSYSTEM=="usb", ATTR{idVendor}=="054c", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"054c\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Sony Ericsson
-SUBSYSTEM=="usb", ATTR{idVendor}=="0fce", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"0fce\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Teleepoch
-SUBSYSTEM=="usb", ATTR{idVendor}=="2340", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"2340\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # Toshiba
-SUBSYSTEM=="usb", ATTR{idVendor}=="0930", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"0930\", MODE=\"0666\", OWNER=\"plugdev\"
 
 # ZTE
-SUBSYSTEM=="usb", ATTR{idVendor}=="19d2", MODE="0666", OWNER="plugdev"
+SUBSYSTEM==\"usb\", ATTR{idVendor}==\"19d2\", MODE=\"0666\", OWNER=\"plugdev\"
 ' > $RULES
 
 # in future add "sed" in order to avoid repetitive code
 
 # provide all groups, users and others with read permissions for this file
-sudo chmod a+r $RULES
+chmod a+r $RULES
 
 echo -e "\nHardware device support successfully installed"
 
@@ -805,7 +833,7 @@ Packages seem to be missing, install required packages?
 	case $response in
 
 		[Yy]* ) 
-		sudo apt-get install mtp-tools mtpfs
+		apt-get install mtp-tools mtpfs
 		;;
 		
 		[Nn]* ) 
@@ -864,15 +892,15 @@ read -p "Installer left \"$SDK_R\" file, would you like to remove it?
 case $response in
 
 	[Yy]* ) 	
-	sudo rm -f $SDK_R 2>/dev/null
+	rm -f $SDK_R 2>/dev/null
 	;;
 
 	[Nn]* ) 
-	sudo chmod 666 $SDK_R
+	chmod 666 $SDK_R
 	;;
 
 	[Ss]* )
-	sudo chmod 666 $SDK_R
+	chmod 666 $SDK_R
 	;;
 
 	* ) 
@@ -896,15 +924,15 @@ the installation process, remove?
 case $response in
 
 	[Yy]* ) 	
-	sudo rm -f $SDK_15 2>/dev/null
+	rm -f $SDK_15 2>/dev/null
 	;;
 
 	[Nn]* ) 
-	sudo chmod 666 $SDK_15
+	chmod 666 $SDK_15
 	;;
 	
 	[Ss]* )
-	sudo chmod 666 $SDK_15
+	chmod 666 $SDK_15
 	;;
 	
 	* ) 
@@ -927,15 +955,15 @@ read -p "Installer left \"$SDK_21\" file, would you like to remove it?
 case $response in
 
 	[Yy]* ) 	
-	sudo rm -f $SDK_21 2>/dev/null
+	rm -f $SDK_21 2>/dev/null
 	;;
 
 	[Nn]* ) 
-	sudo chmod 666 $SDK_21
+	chmod 666 $SDK_21
 	;;
 
 	[Ss]* )
-	sudo chmod 666 $SDK_21
+	chmod 666 $SDK_21
 	;;
 
 	* ) 
@@ -958,15 +986,15 @@ read -p "Installer left \"$ADT_RM\" file, would you like to remove it?
 case $response in
 
 	[Yy]* ) 	
-	sudo rm -f $ADT_RM 2>/dev/null
+	rm -f $ADT_RM 2>/dev/null
 	;;
 
 	[Nn]* ) 
-	sudo chmod 666 $ADT_RM
+	chmod 666 $ADT_RM
 	;;
 
 	[Ss]* )
-	sudo chmod 666 $ADT_RM
+	chmod 666 $ADT_RM
 	;;
 
 	* ) 
@@ -979,7 +1007,25 @@ fi
 
 echo -e $DIV
 
-echo -e "Installation complete. Feel free to run \"android-sdk-installer\" at any
-time to (re)configure.\nIf you want to configure this installation, run \"android\" in root.\nEnjoy!\n";
+read -p "Would you like to configure your Android SDK installation?
+
+[Y]es, [N]o, [S]kip :" response
+
+case $response in
+
+	[Yy]* )	
+	/opt/android-sdk-linux/tools/android
+	;;
+
+	* ) 
+	echo "Wrong value: installaton aborted."
+	exit 1
+	;;
+
+esac
+
+echo -e $DIV
+
+echo -e "Installation complete.\nEnjoy!\n";
 
 exit 0
