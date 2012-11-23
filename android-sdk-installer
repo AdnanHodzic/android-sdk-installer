@@ -4,7 +4,7 @@
 # configures Android SDK, Eclipse ADT Plugin, adds hardware support for 
 # devices and adds full MTP support.
 #
-# Copyright © 2012 Adnan Hodzic <adnan@foolcontrol.org>
+# Copyright © 2012 Adnan Hodzic 
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,11 +17,11 @@
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program.  If not, see .
 
 ASI="Android SDK Installer"
 
-ASI_VERSION="0.1.2"
+ASI_VERSION="0.1.5"
 
 DIV="\n----------------------------------------------------------------------------\n";
 
@@ -810,11 +810,17 @@ echo -e "\nHardware device support successfully installed"
 
 echo -e $DIV
 
+#!/bin/bash -e
+
 # add MTP support
 
 read -p "Add MTP support? (enables USB mass storage support on Android >= 4.0)
 
 [Y]es, [N]o, [S]kip: " response
+
+
+# Tell the user to disconnect his device
+echo -e "\nPlease make sure your device is disconnected before proceeding!"
 
 case $response in
 
@@ -823,7 +829,7 @@ case $response in
 	
 	if [ dpkg -s "$PACKAGE" 2>/dev/null 1>/dev/null ]
 		then 
-		echo -e "\nIt seems you have all the needed packages installed" 	
+		echo -e "It seems you have all the needed packages installed" 	
 	else 
 	
 	read -p "
@@ -833,7 +839,7 @@ Packages seem to be missing, install required packages?
 	case $response in
 
 		[Yy]* ) 
-		apt-get install mtp-tools mtpfs
+		apt-get install mtpfs mtp-tools libmtp9 libmtp-runtime libmtp-common 
 		;;
 		
 		[Nn]* ) 
@@ -847,31 +853,220 @@ Packages seem to be missing, install required packages?
 		;;
 		
 	esac
-	
-	echo -e "\nMTP support successfully installed"
-
-	# In future extend this part by adding device name to /media dir
-	# fix permissions and add user to fuse group; edit fuse.conf and .bashrc
-	#
-	# Reference:
-	# http://www.omgubuntu.co.uk/2011/12/how-to-connect-your-android-ice-cream-sandwich-phone-to-ubuntu-for-file-access
-	
-	fi  
-;;
-
-[Nn]* ) 
-	echo "Did NOT enable MTP support"
-	exit 1
-	;;
-	
-[Ss]* ) ;;
-
-* ) 
-	echo "Wrong value: installation aborted." 
-	exit 1
-	;;
-
+	fi
 esac
+
+if [ ! -f $RULES ]
+then
+	# temporary
+	# echo -e $DIV
+	
+read -p "
+Missing hardware device support. Add now? 
+
+[Y]es, [N]o, [S]kip :" response
+
+case $response in
+
+	[Yy]* ) 	
+	# create rules file and give it proper permissions
+	touch $RULES
+	chmod 666 $RULES
+	
+
+# Consider removing "OWNER="plugdev" due to the fact that during the boot
+# system (Debian Sid) reports it's an unknown user
+
+echo '# udev rules which add hardware device support on Linux
+#
+# "Using Hardware devices"
+# (http://developer.android.com/guide/developing/device.html)
+#
+# List last updated: May 9, 2012
+
+# Acer
+SUBSYSTEM=="usb", ATTR{idVendor}=="0502", MODE="0666", OWNER="plugdev"
+
+# ASUS
+SUBSYSTEM=="usb", ATTR{idVendor}=="0b05", MODE="0666", OWNER="plugdev"
+
+# Dell
+SUBSYSTEM=="usb", ATTR{idVendor}=="413c", MODE="0666", OWNER="plugdev"
+
+# Foxconn
+SUBSYSTEM=="usb", ATTR{idVendor}=="0489", MODE="0666", OWNER="plugdev"
+
+# Fujitsu
+SUBSYSTEM=="usb", ATTR{idVendor}=="04c5", MODE="0666", OWNER="plugdev"
+
+# Fujitsu Toshiba
+SUBSYSTEM=="usb", ATTR{idVendor}=="04c5", MODE="0666", OWNER="plugdev"
+
+# Garmin-Asus
+SUBSYSTEM=="usb", ATTR{idVendor}=="091e", MODE="0666", OWNER="plugdev"
+
+# Google
+SUBSYSTEM=="usb", ATTR{idVendor}=="18d1", MODE="0666", OWNER="plugdev"
+
+# Hisense
+SUBSYSTEM=="usb", ATTR{idVendor}=="109b", MODE="0666", OWNER="plugdev"
+
+# HTC
+SUBSYSTEM=="usb", ATTR{idVendor}=="0bb4", MODE="0666", OWNER="plugdev"
+
+# Huawei
+SUBSYSTEM=="usb", ATTR{idVendor}=="12d1", MODE="0666", OWNER="plugdev"
+
+# K-Touch
+SUBSYSTEM=="usb", ATTR{idVendor}=="24e3", MODE="0666", OWNER="plugdev"
+
+# KT Tech
+SUBSYSTEM=="usb", ATTR{idVendor}=="2116", MODE="0666", OWNER="plugdev"
+
+# Kyocera
+SUBSYSTEM=="usb", ATTR{idVendor}=="0482", MODE="0666", OWNER="plugdev"
+
+# Lenovo
+SUBSYSTEM=="usb", ATTR{idVendor}=="17ef", MODE="0666", OWNER="plugdev"
+
+# LG
+SUBSYSTEM=="usb", ATTR{idVendor}=="1004", MODE="0666", OWNER="plugdev"
+
+# Motorola
+SUBSYSTEM=="usb", ATTR{idVendor}=="22b8", MODE="0666", OWNER="plugdev"
+
+# NEC
+SUBSYSTEM=="usb", ATTR{idVendor}=="0409", MODE="0666", OWNER="plugdev"
+
+# Nook
+SUBSYSTEM=="usb", ATTR{idVendor}=="2080", MODE="0666", OWNER="plugdev"
+
+# Nvidia
+SUBSYSTEM=="usb", ATTR{idVendor}=="0955", MODE="0666", OWNER="plugdev"
+
+# OTGV
+SUBSYSTEM=="usb", ATTR{idVendor}=="2257", MODE="0666", OWNER="plugdev"
+
+# Pantech
+SUBSYSTEM=="usb", ATTR{idVendor}=="10a9", MODE="0666", OWNER="plugdev"
+
+# Pegatron
+SUBSYSTEM=="usb", ATTR{idVendor}=="1d4d", MODE="0666", OWNER="plugdev"
+
+# Philips
+SUBSYSTEM=="usb", ATTR{idVendor}=="0471", MODE="0666", OWNER="plugdev"
+
+# PMC-Sierra
+SUBSYSTEM=="usb", ATTR{idVendor}=="04da", MODE="0666", OWNER="plugdev"
+
+# Qualcomm
+SUBSYSTEM=="usb", ATTR{idVendor}=="05c6", MODE="0666", OWNER="plugdev"
+
+# SK Telesys
+SUBSYSTEM=="usb", ATTR{idVendor}=="1f53", MODE="0666", OWNER="plugdev"
+
+# Samsung
+SUBSYSTEM=="usb", ATTR{idVendor}=="04e8", MODE="0666", OWNER="plugdev"
+
+# Sharp
+SUBSYSTEM=="usb", ATTR{idVendor}=="04dd", MODE="0666", OWNER="plugdev"
+
+# Sony
+SUBSYSTEM=="usb", ATTR{idVendor}=="054c", MODE="0666", OWNER="plugdev"
+
+# Sony Ericsson
+SUBSYSTEM=="usb", ATTR{idVendor}=="0fce", MODE="0666", OWNER="plugdev"
+
+# Teleepoch
+SUBSYSTEM=="usb", ATTR{idVendor}=="2340", MODE="0666", OWNER="plugdev"
+
+# Toshiba
+SUBSYSTEM=="usb", ATTR{idVendor}=="0930", MODE="0666", OWNER="plugdev"
+
+# ZTE
+SUBSYSTEM=="usb", ATTR{idVendor}=="19d2", MODE="0666", OWNER="plugdev"
+' > $RULES
+
+# in future add "sed" in order to avoid repetitive code
+
+# provide all groups, users and others with read permissions for this file
+chmod a+r+x $RULES
+
+# restart udev
+sudo service udev restart
+
+echo -e "\nHardware device support successfully installed"
+	;;
+
+	[Nn]* ) 
+	echo "Did *not* add hardware support, nor MTP support as one of its dependencies"
+	# exit 1
+	;;
+	
+#	[Ss]* )
+#	temporary	
+#	;;
+	
+	* ) 
+	echo "Wrong value: installaton aborted."
+	exit 1
+	;;
+	
+	esac
+fi
+
+echo -e "\nProceeding with implementation\n"
+
+# crate $DEVICE dir and provide it with right set of permissions
+read -p  "Type your device name: " DEVICE
+mkdir -p /media/$DEVICE
+# chmod 775 /media/$DEVICE
+chmod a+rwx /media/$DEVICE
+
+# in future maybe instead of particular username add "users" group to fuse
+read -p  "Type your username: " USERNAME
+adduser $USERNAME fuse
+
+# uncomment the "user_allow_other" line
+sed -i 's/#user_allow_other/user_allow_other/g' /etc/fuse.conf
+
+chmod 666 /etc/bash.bashrc
+echo "# Added by \"android-sdk-installer\" to enable MPT support" >> /etc/bash.bashrc
+echo "alias android-connect=\"mtpfs -o allow_other /media/$DEVICE\"" >> /etc/bash.bashrc
+echo "alias android-disconnect=\"fusermount -u /media/$DEVICE\"" >> /etc/bash.bashrc
+source /etc/bash.bashrc
+
+# tell the user to connect their phone and use MTP
+# then try how to automatically run "android-connect"
+echo -e "\nIn case device isn't automatically detected, you can use:
+\n\"android-connect\" to mount the device, and 
+\"android-disconnect\" to unmount the device.\n"
+
+# Solution for Ubuntu 12.04, Implement?
+#
+# sudo apt-get install libusb-dev
+# wget http://downloads.sourceforge.net/project/libmtp/libmtp/1.1.1/libmtp-1.1.1.tar.gz
+#
+# latest libmtp 1.1.5
+# wget http://downloads.sourceforge.net/project/libmtp/libmtp/1.1.5/libmtp-1.1.5.tar.gz
+#
+# tar -xvf libmtp-1.1.1.tar.gz
+# cd libmtp-1.1.1
+# "./configure --bindir=/usr/bin --libdir=/usr/lib"
+# ./configure --prefix=/usr
+# make
+# sudo make install
+# sudo cp 69-libmtp.rules /etc/udev/rules.d (mayby not needed)
+# sudo service udev restart
+
+# restart udev
+sudo service udev restart
+
+# Tell user to disable "USB Debugging Mode?"
+
+echo -e "\nPlease make sure screen is ON when connecting the device to your PC\n"
+
+echo -e "\nMTP support successfully installed"
 
 # clean up
 
@@ -1015,6 +1210,13 @@ case $response in
 
 	[Yy]* )	
 	/opt/android-sdk-linux/tools/android
+	;;
+	
+	[Nn]* ) 
+	# exit 1
+	;;
+	
+	[Ss]* )
 	;;
 
 	* ) 

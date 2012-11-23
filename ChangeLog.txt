@@ -1,0 +1,13 @@
+# android-sdk-installer (0.1.5)
+
+	* Rewritten the MTP implementation part from scratch
+		- needs more testing
+		- Error initializing camera: -60: Could not lock the device (problem)
+
+	* Changed Android SDK version from 20.0.1 to 20.0.3
+
+	* Added ChangeLog and WishList
+	
+	* Added (N)o and (S)kip option to Android SDK configuration dialog.
+	
+	-- Adnan Hodzic (adnan@foolcontrol.org) Fri, Nov 23, 2012 17:35 +0100

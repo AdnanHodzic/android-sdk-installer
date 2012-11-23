@@ -1,0 +1,12 @@
+// Please add your wishes and request in following form:
+
+# example request
+
+	* Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy
+	  nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. 
+	  
+	  Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse
+	  molestie consequat,
+	  
+	
+	-- Name (email@address.com) Fri, Nov 23, 2012 17:33 +0100
