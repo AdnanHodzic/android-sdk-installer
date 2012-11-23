@@ -810,8 +810,6 @@ echo -e "\nHardware device support successfully installed"
 
 echo -e $DIV
 
-#!/bin/bash -e
-
 # add MTP support
 
 read -p "Add MTP support? (enables USB mass storage support on Android >= 4.0)
