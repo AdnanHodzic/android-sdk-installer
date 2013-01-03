@@ -517,20 +517,27 @@ touch $PATHV
 chmod 644 $PATHV
 
 fi
-    # apply PATH without user having to log out
-    export PATH=$PATH:/opt/android-sdk-linux/tools:/opt/android-sdk-linux/platforms:/opt/android-sdk-linux/platform-tools
+    read -p "Do you have a different bashrc file? Type in the complete path or press enter to use the default /etc/bash.bashrc: " new_path
     
+    if [ "$new_path" == "" ] 
+    then 
+		new_path=/etc/bash.bashrc
+    fi
     # create a backup of bash.bashrc
-    cp /etc/bash.bashrc /etc/bash.bashrc.bak
-    
-    echo '' >> /etc/bash.bashrc
-    echo '# android-sdk-installer path setting' >> /etc/bash.bashrc
-    echo 'export PATH=\$PATH:/opt/android-sdk-linux/tools:/opt/android-sdk-linux/platforms:/opt/android-sdk-linux/platform-tools' >> /etc/bash.bashrc
+    cp "$new_path" "${new_path}".bak
+    if [ -n "$(echo $PATH | grep /opt/android-sdk-linux/tools:/opt/android-sdk-linux/platforms:/opt/android-sdk-linux/platform-tools
+)"]; then
+		echo '' >> "$new_path"
+		echo '# android-sdk-installer path setting' >> "$new_path"
+		echo 'export PATH=$PATH:/opt/android-sdk-linux/tools:/opt/android-sdk-linux/platforms:/opt/android-sdk-linux/platform-tools' >> "$new_path"
+		# apply PATH without user having to log out
+        export PATH=$PATH:/opt/android-sdk-linux/tools:/opt/android-sdk-linux/platforms:/opt/android-sdk-linux/platform-tools
 
-    # in future add "sed" here in order to avoid repetitive code
-
-    echo -e "\nPATH successfully added and configured."
-    echo "If you need to restore your bash.bashrc file that has been modified, you can do so with /etc/bash.bashrc.bak"
+		echo -e "\nPATH successfully added and configured."
+		echo "If you need to restore your bashrc file that has been modified, you can do so with ${new_path}.bak"
+    else
+		echo "PATH is already configured."
+	fi
 ;;
 
 [Nn]* ) 
