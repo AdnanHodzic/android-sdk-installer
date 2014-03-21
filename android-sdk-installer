@@ -1207,6 +1207,25 @@ fi
 
 echo -e $DIV
 
+read -p "Would you like to clean up the previously downloaded .deb files from the package cache directory (usually /var/cache/apt/archives)?
+
+[Y]es, [N]o, [S]kip :" response
+
+case $response in
+
+	[Yy]* )
+        apt-get clean
+	;;
+
+	* ) 
+	echo "Wrong value: installaton aborted."
+	exit 1
+	;;
+
+esac
+
+echo -e $DIV
+
 read -p "Would you like to configure your Android SDK installation?
 
 [Y]es, [N]o, [S]kip :" response
